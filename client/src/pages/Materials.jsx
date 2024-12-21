@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../Helper/axiosInstance';
 import { useRecoilValue } from 'recoil';
-import { userState } from '../store/atoms/userState';
+import { authState } from '../store/atoms/auth';
 import {
   FaFilePdf, FaFileImage, FaFileAlt, FaFileWord, FaFileExcel,
   FaTrash, FaDownload, FaSearch, FaEye, FaArrowLeft
@@ -10,7 +10,7 @@ import FilePreviewModal from '../components/FilePreviewModal';
 import { useNavigate } from 'react-router-dom';
 
 function Materials() {
-  const user = useRecoilValue(userState);
+  const user = useRecoilValue(authState);
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState({});

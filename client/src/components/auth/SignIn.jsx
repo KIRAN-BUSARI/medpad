@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { authState } from '../../store/atoms/auth';
-import axiosInstance from "../../Helper/axios";
+import axiosInstance from "../../Helper/axiosInstance";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function SignIn() {
@@ -17,6 +18,10 @@ export default function SignIn() {
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
+    const auth = useRecoilValue(authState);
+    console.log(auth);
+
 
     const validateForm = () => {
         const newErrors = {};
@@ -60,21 +65,27 @@ export default function SignIn() {
                 email: formData.email,
                 password: formData.password,
             });
-            console.log(response.data.data);
+
+            const accessToken = response?.data?.data?.accessToken;
+
+            const { user } = response.data.data;
 
 
-            const { token, user } = response.data.data;
-            console.log(user);
+            // Store token securely
+            localStorage.setItem('token', accessToken);
+            sessionStorage.setItem('token', accessToken);
 
             // Update Recoil state
             setAuth({
                 isAuthenticated: true,
                 user,
-                token
+                token: accessToken,
+                role: user.role,
+                expiresAt: new Date().getTime() + 24 * 60 * 60 * 1000 // 24 hours
             });
 
-            // Store token
-            localStorage.setItem('token', token);
+            console.log(auth);
+
 
             // Redirect based on role
             if (user.role === 'DOCTOR') {

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
-import { userState } from '../store/atoms/userState';
+import { authState } from '../store/atoms/auth';
 import axiosInstance from '../Helper/axiosInstance';
 
 function VideoConference() {
-  const user = useRecoilValue(userState);
+  const user = useRecoilValue(authState);
   const [doctors, setDoctors] = useState([]);
   const [conferences, setConferences] = useState([]);
   const [mrs, setMrs] = useState([]);

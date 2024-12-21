@@ -18,9 +18,10 @@ export const authState = atom({
   default: {
     isAuthenticated: false,
     user: null,
-    token: null
+    token: null,
+    role: null,
   },
   effects: [
-    localStorageEffect('auth')
+    localStorageEffect('authState')
   ]
 });

@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import { authState } from '../store/atoms/auth';
 
 const Header = ({ userLoggedIn, UserButton }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const auth = useRecoilValue(authState)
+    console.log(auth);
+
 
     return (
         <header className="bg-teal-600 text-white shadow-lg">
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo/Brand */}
-                    <div className="flex items-center space-x-2">
+                    <Link to="/" className="flex items-center space-x-2">
                         <svg
                             className="w-8 h-8"
                             fill="none"
@@ -25,7 +32,7 @@ const Header = ({ userLoggedIn, UserButton }) => {
                             />
                         </svg>
                         <span className="font-bold text-xl">MedPad</span>
-                    </div>
+                    </Link>
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-8">
@@ -38,8 +45,14 @@ const Header = ({ userLoggedIn, UserButton }) => {
                         <a href="/doctors" className="hover:text-teal-200 transition-colors">
                             Doctors
                         </a>
+                        <a href="/survey" className="hover:text-teal-200 transition-colors">
+                            Survey
+                        </a>
                         <a href="/video-conference" className="hover:text-teal-200 transition-colors">
                             Video Conference
+                        </a>
+                        <a href="/create-product" className="hover:text-teal-200 transition-colors">
+                            Create Product
                         </a>
                         <a href="/contact" className="hover:text-teal-200 transition-colors">
                             Contact
@@ -97,14 +110,11 @@ const Header = ({ userLoggedIn, UserButton }) => {
                             <a href="/upload-brouchers" className="hover:text-teal-200 transition-colors">
                                 Upload Brouchers
                             </a>
-                            <a href="/doctors" className="hover:text-teal-200 transition-colors">
-                                Doctors
-                            </a>
-                            <a href="/video-conference" className="hover:text-teal-200 transition-colors">
-                                Video Conference
-                            </a>
                             <a href="/materials" className="hover:text-teal-200 transition-colors">
                                 Materials
+                            </a>
+                            <a href="/doctors" className="hover:text-teal-200 transition-colors">
+                                Doctors
                             </a>
                             <a href="/contact" className="hover:text-teal-200 transition-colors">
                                 Contact
