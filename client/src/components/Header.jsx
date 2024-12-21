@@ -29,11 +29,11 @@ const Header = ({ userLoggedIn, UserButton }) => {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-8">
-                        <a href="/appointments" className="hover:text-teal-200 transition-colors">
-                            Appointments
+                        <a href="/upload-brouchers" className="hover:text-teal-200 transition-colors">
+                            Upload Brouchers
                         </a>
-                        <a href="/services" className="hover:text-teal-200 transition-colors">
-                            Services
+                        <a href="/materials" className="hover:text-teal-200 transition-colors">
+                            Materials
                         </a>
                         <a href="/doctors" className="hover:text-teal-200 transition-colors">
                             Doctors
@@ -94,14 +94,17 @@ const Header = ({ userLoggedIn, UserButton }) => {
                 {isMenuOpen && (
                     <div className="md:hidden py-4">
                         <nav className="flex flex-col space-y-4">
-                            <a href="/appointments" className="hover:text-teal-200 transition-colors">
-                                Appointments
-                            </a>
-                            <a href="/services" className="hover:text-teal-200 transition-colors">
-                                Services
+                            <a href="/upload-brouchers" className="hover:text-teal-200 transition-colors">
+                                Upload Brouchers
                             </a>
                             <a href="/doctors" className="hover:text-teal-200 transition-colors">
                                 Doctors
+                            </a>
+                            <a href="/video-conference" className="hover:text-teal-200 transition-colors">
+                                Video Conference
+                            </a>
+                            <a href="/materials" className="hover:text-teal-200 transition-colors">
+                                Materials
                             </a>
                             <a href="/contact" className="hover:text-teal-200 transition-colors">
                                 Contact

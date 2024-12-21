@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
-import { authState } from '../../store/atoms/auth-atoms';
+import { authState } from '../../store/atoms/auth';
 import axiosInstance from "../../Helper/axios";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function SignIn() {
     const navigate = useNavigate();
-    const setAuthState = useSetRecoilState(authState);
+    const setAuth = useSetRecoilState(authState);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -15,6 +16,7 @@ export default function SignIn() {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const validateForm = () => {
         const newErrors = {};
@@ -58,24 +60,33 @@ export default function SignIn() {
                 email: formData.email,
                 password: formData.password,
             });
+            console.log(response.data.data);
 
-            const { data } = response;
 
-            if (response.status !== 200) {
-                throw new Error(data.message || 'Sign in failed');
-            }
+            const { token, user } = response.data.data;
+            console.log(user);
 
-            localStorage.setItem('token', data.token);
-
-            setAuthState({
+            // Update Recoil state
+            setAuth({
                 isAuthenticated: true,
-                user: data.user,
-                token: data.token
+                user,
+                token
             });
 
-            navigate('/dashboard');
-        } catch (error) {
-            setSubmitError(error.response?.data?.message || error.message || 'An error occurred during sign in');
+            // Store token
+            localStorage.setItem('token', token);
+
+            // Redirect based on role
+            if (user.role === 'DOCTOR') {
+                navigate('/doctor-dashboard');
+            } else if (user.role === 'MR') {
+                navigate('/mr-dashboard');
+            } else {
+                navigate('/');
+            }
+
+        } catch (err) {
+            setSubmitError(err.response?.data?.message || 'Failed to sign in');
         } finally {
             setIsLoading(false);
         }
@@ -108,12 +119,11 @@ export default function SignIn() {
                                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
                             )}
                         </div>
-                        <div>
-                            <label htmlFor="password" className="sr-only">Password</label>
+                        <div className="relative">
                             <input
                                 id="password"
                                 name="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 autoComplete="current-password"
                                 required
                                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.password ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
@@ -121,6 +131,18 @@ export default function SignIn() {
                                 value={formData.password}
                                 onChange={handleChange}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? (
+                                    <FaEyeSlash className="h-5 w-5 text-gray-400" />
+                                ) : (
+                                    <FaEye className="h-5 w-5 text-gray-400" />
+                                )}
+                            </button>
                             {errors.password && (
                                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
                             )}

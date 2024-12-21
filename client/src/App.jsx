@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useRecoilValue } from 'recoil';
+import { isAuthenticatedSelector } from './store/atoms/userState';
 import MainLayout from './layouts/MainLayout'
 import Home from './pages/Home'
 import SignIn from './components/auth/SignIn'
@@ -8,6 +10,13 @@ import Services from './pages/Services'
 import Doctors from './pages/Doctors'
 import Contact from './pages/Contact'
 import VideoConference from './pages/VideoConference'
+import UploadBrouchers from './pages/UploadBroucher'
+import Materials from './pages/Materials'
+
+function PrivateRoute({ children }) {
+  const isAuthenticated = useRecoilValue(isAuthenticatedSelector);
+  return isAuthenticated ? children : <Navigate to="/signin" />;
+}
 
 function App() {
   return (
@@ -17,11 +26,31 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/appointments" element={<Appointments />} />
+          <Route path="/appointments" element={
+            <PrivateRoute>
+              <Appointments />
+            </PrivateRoute>
+          } />
+          {/* Protected Routes */}
+          <Route path="/video-conference" element={
+            <PrivateRoute>
+              <VideoConference />
+            </PrivateRoute>
+          } />
+          <Route path="/upload-brouchers" element={
+            <PrivateRoute>
+              <UploadBrouchers />
+            </PrivateRoute>
+          } />
+          <Route path="/materials" element={
+            <PrivateRoute>
+              <Materials />
+            </PrivateRoute>
+          } />
+          {/* Public Routes */}
           <Route path="/services" element={<Services />} />
           <Route path="/doctors" element={<Doctors />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/video-conference" element={<VideoConference />} />
         </Routes>
       </MainLayout>
     </Router>

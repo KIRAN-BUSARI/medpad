@@ -1,27 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
-import { authState } from '../../store/atoms/auth-atoms';
+import { authState } from '../../store/atoms/auth';
 import axiosInstance from '../../Helper/axiosInstance';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 
 export default function SignUp() {
     const navigate = useNavigate();
-    const setAuthState = useSetRecoilState(authState);
+    const setAuth = useSetRecoilState(authState);
 
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: ''
     });
 
     const [avatar, setavatar] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const validateForm = () => {
         const newErrors = {};
@@ -116,43 +120,39 @@ export default function SignUp() {
         setIsLoading(true);
         try {
             // Create FormData for multipart/form-data submission
-            const submitData = new FormData();
-            submitData.append('usename', formData.username);
-            submitData.append('email', formData.email);
-            submitData.append('password', formData.password);
-            submitData.append('avatar', avatar);
+            const formDataToSend = new FormData();
+            formDataToSend.append('username', formData.username);
+            formDataToSend.append('email', formData.email);
+            formDataToSend.append('password', formData.password);
+            formDataToSend.append('role', formData.role);
+            formDataToSend.append('avatar', avatar);
 
-            const response = await axiosInstance.post('/users/register', submitData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
-            });
-
-            const { data } = response;
-
-            if (response.status !== 201) {
-                throw new Error(data.message || 'Sign up failed');
-            }
-
-            // Store token in localStorage
-            localStorage.setItem('token', data.token);
+            const response = await axiosInstance.post('/users/register', formDataToSend);
+            const { token, user } = response.data.data;
 
             // Update Recoil state
-            setAuthState({
+            setAuth({
                 isAuthenticated: true,
-                user: {
-                    name: formData.username,
-                    email: formData.email,
-                    avatar: imagePreview
-                },
-                token: 'your-auth-token'
+                user,
+                token
             });
 
-            navigate('/dashboard');
-        } catch (error) {
+            // Store token
+            localStorage.setItem('token', token);
+
+            // Redirect based on role
+            if (user.role === 'DOCTOR') {
+                navigate('/doctor-dashboard');
+            } else if (user.role === 'MR') {
+                navigate('/mr-dashboard');
+            } else {
+                navigate('/');
+            }
+
+        } catch (err) {
             setErrors(prev => ({
                 ...prev,
-                submit: error.response?.data?.message || error.message || 'An error occurred during sign up'
+                submit: err.response?.data?.message || 'Registration failed'
             }));
         } finally {
             setIsLoading(false);
@@ -203,34 +203,58 @@ export default function SignUp() {
                         </div>
 
                         {/* Password Field */}
-                        <div>
+                        <div className="relative">
                             <label htmlFor="password" className="sr-only">Password</label>
                             <input
                                 id="password"
                                 name="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 required
                                 className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                 placeholder="Password"
                                 value={formData.password}
                                 onChange={handleInputChange}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? (
+                                    <FaEyeSlash className="h-5 w-5 text-gray-400" />
+                                ) : (
+                                    <FaEye className="h-5 w-5 text-gray-400" />
+                                )}
+                            </button>
                             {errors.password && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
                         </div>
 
                         {/* Confirm Password Field */}
-                        <div>
+                        <div className="relative">
                             <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
                             <input
                                 id="confirmPassword"
                                 name="confirmPassword"
-                                type="password"
+                                type={showConfirmPassword ? "text" : "password"}
                                 required
                                 className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                 placeholder="Confirm Password"
                                 value={formData.confirmPassword}
                                 onChange={handleInputChange}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                            >
+                                {showConfirmPassword ? (
+                                    <FaEyeSlash className="h-5 w-5 text-gray-400" />
+                                ) : (
+                                    <FaEye className="h-5 w-5 text-gray-400" />
+                                )}
+                            </button>
                             {errors.confirmPassword && <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>}
                         </div>
 
